@@ -1,13 +1,18 @@
+import express from 'express';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
+
 dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-export default async function handler(req, res) {
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+app.post('/ask', async (req, res) => {
+  const userInput = req.body.message;
   const HF_TOKEN = process.env.HF_TOKEN;
-
-  if (!HF_TOKEN) {
-    return res.status(500).json({ error: "HF_TOKEN not set" });
-  }
 
   const headers = {
     'Authorization': `Bearer ${HF_TOKEN}`,
@@ -15,22 +20,25 @@ export default async function handler(req, res) {
   };
 
   const data = {
-    inputs: "The quick brown fox jumps over the lazy dog",
+    inputs: userInput,
     parameters: {
       candidate_labels: ["animal", "sports", "politics"]
     }
   };
 
   try {
-    const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-mnli', {
+    const response = await fetch("https://api-inference.huggingface.co/models/facebook/bart-large-mnli", {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify(data)
     });
-
     const result = await response.json();
-    return res.status(200).json(result);
+    res.send(`<h2>Umeuliza: ${userInput}</h2><pre>${JSON.stringify(result, null, 2)}</pre><a href="/">Rudi Nyuma</a>`);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.send(`Error: ${err.message}`);
   }
-}
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
