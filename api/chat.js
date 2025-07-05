@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const reply = data[0]?.generated_text || "Samahani, sijajibu ipasavyo.";
     res.status(200).json({ bot: reply });
 
-  } catch (err) {
+  } } catch (err) {
+    console.error("ERROR:", err);  // ongeza hii
     res.status(500).json({ error: 'Tatizo la ndani la server', details: err.message });
   }
-}
