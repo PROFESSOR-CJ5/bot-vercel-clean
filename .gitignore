@@ -1,2 +1,5 @@
 .env
+passwords.txt
+tokens.txt
 node_modules
+tokens.txt
