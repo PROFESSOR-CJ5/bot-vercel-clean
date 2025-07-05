@@ -1,32 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="sw">
 <head>
-  <title>Chat na Bot</title>
+  <meta charset="UTF-8">
+  <title>🤖 Chat na Bot</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background: #f0f0f0; }
+    textarea, input { width: 100%; padding: 10px; margin: 10px 0; }
+    .chat-box { background: #fff; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
+    .me { color: blue; }
+    .bot { color: green; }
+  </style>
 </head>
 <body>
-  <h2>🤖 Chat na Bot</h2>
-  <div id="chat-box"></div>
-  <input type="text" id="msg" placeholder="Andika ujumbe..."/>
-  <button onclick="sendMessage()">Tuma</button>
+  <h1>🤖 Chat na Bot</h1>
+
+  <div id="chat"></div>
+
+  <form id="chatForm">
+    <textarea id="userInput" rows="3" placeholder="Andika ujumbe wako hapa..." required></textarea>
+    <input type="submit" value="Tuma">
+  </form>
 
   <script>
-    async function sendMessage() {
-      const msg = document.getElementById('msg').value;
-      const chatBox = document.getElementById('chat-box');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('userInput');
+    const chatDiv = document.getElementById('chat');
 
-      chatBox.innerHTML += `<p><b>Wewe:</b> ${msg}</p>`;
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const msg = input.value;
+      chatDiv.innerHTML += `<div class="chat-box me"><strong>Wewe:</strong> ${msg}</div>`;
+      input.value = '';
 
-      const res = await fetch('/api/chat', {
+      const res = await fetch('/api/index.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg })
       });
 
       const data = await res.json();
-      const reply = data[0]?.generated_text || "Samahani, sijajibu ipasavyo.";
-      chatBox.innerHTML += `<p><b>Bot:</b> ${reply}</p>`;
-      document.getElementById('msg').value = '';
-    }
+      chatDiv.innerHTML += `<div class="chat-box bot"><strong>Bot:</strong> ${data.bot}</div>`;
+    };
   </script>
 </body>
 </html>
