@@ -1,8 +1,8 @@
 {
-  "name": "bot-vercel",
+  "name": "bot-vercel-clean",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
     "start": "node index.js"
   },
@@ -14,7 +14,7 @@
   "description": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PROFESSOR-CJ5/bot-vercel-clean.git"
+    "url": "https://github.com/PROFESSOR-CJ5/bot-vercel-clean"
   },
   "keywords": [],
   "author": "",
