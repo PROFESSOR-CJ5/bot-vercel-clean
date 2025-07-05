@@ -4,28 +4,34 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default async function handler(req, res) {
-  const HF_TOKEN = process.env.HF_TOKEN;
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed, tumia POST' });
   }
 
-  const inputs = req.body.inputs || "Hello";
+  const HF_TOKEN = process.env.HF_TOKEN;
+  if (!HF_TOKEN) {
+    return res.status(500).json({ error: 'HF_TOKEN not set' });
+  }
 
-  const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-mnli', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      inputs: inputs,
-      parameters: {
-        candidate_labels: ["animal", "sports", "politics"]
-      }
-    })
-  });
+  const body = req.body;
+  if (!body.inputs || !body.parameters) {
+    return res.status(400).json({ error: 'inputs na parameters required in body' });
+  }
 
-  const result = await response.json();
-  res.status(200).json(result);
+  try {
+    const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-mnli', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const result = await response.json();
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 }
