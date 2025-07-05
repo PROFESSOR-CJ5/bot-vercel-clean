@@ -1,34 +1,37 @@
 import fetch from 'node-fetch';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export default async function handler(req, res) {
+  const HF_TOKEN = process.env.HF_TOKEN;
 
-const HF_TOKEN = process.env.HF_TOKEN;
-
-const headers = {
-  'Authorization': `Bearer ${HF_TOKEN}`,
-  'Content-Type': 'application/json'
-};
-
-const data = {
-  inputs: "The quick brown fox jumps over the lazy dog",
-  parameters: {
-    candidate_labels: ["animal", "sports", "politics"]
+  if (!HF_TOKEN) {
+    return res.status(500).json({ error: "HF_TOKEN not set" });
   }
-};
 
-const url = 'https://api-inference.huggingface.co/models/facebook/bart-large-mnli';
+  const headers = {
+    Authorization: `Bearer ${HF_TOKEN}`,
+    'Content-Type': 'application/json'
+  };
 
-fetch(url, {
-  method: 'POST',
-  headers: headers,
-  body: JSON.stringify(data)
-})
-.then(res => res.json())
-.then(json => {
-  console.log("✅ Response from HuggingFace:");
-  console.log(json);
-})
-.catch(err => {
-  console.error("❌ Error:", err.message);
-});
+  const data = {
+    inputs: "The quick brown fox jumps over the lazy dog"
+  };
+
+  try {
+    const response = await fetch('https://api-inference.huggingface.co/models/gpt2', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(data)
+    });
+
+    const json = await response.json();
+
+    if (json.error) {
+      return res.status(500).json({ error: json.error });
+    }
+
+    return res.status(200).json(json);
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
