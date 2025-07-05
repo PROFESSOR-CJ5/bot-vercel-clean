@@ -6,6 +6,12 @@ dotenv.config();
 export default async function handler(req, res) {
   const HF_TOKEN = process.env.HF_TOKEN;
 
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed, tumia POST' });
+  }
+
+  const inputs = req.body.inputs || "Hello";
+
   const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-mnli', {
     method: 'POST',
     headers: {
@@ -13,7 +19,7 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      inputs: "The quick brown fox jumps over the lazy dog",
+      inputs: inputs,
       parameters: {
         candidate_labels: ["animal", "sports", "politics"]
       }
