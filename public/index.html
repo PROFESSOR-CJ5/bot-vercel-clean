@@ -1,45 +1,37 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CJ Bot</title>
-  <style>
-    body { font-family: sans-serif; padding: 2em; background: #f4f4f4; }
-    #chat { max-width: 600px; margin: auto; }
-    .bubble { padding: 1em; margin-bottom: 10px; border-radius: 8px; }
-    .user { background: #d1e7dd; text-align: right; }
-    .bot { background: #f8d7da; }
-  </style>
+  <title>Chatbot</title>
 </head>
 <body>
-  <div id="chat"></div>
-  <form id="chatForm">
+  <h1>Chat na Bot</h1>
+  <form id="chat-form">
     <input type="text" id="message" placeholder="Andika ujumbe..." required />
     <button type="submit">Tuma</button>
   </form>
+  <pre id="response"></pre>
 
   <script>
-    const chat = document.getElementById('chat');
-    const form = document.getElementById('chatForm');
-
-    form.onsubmit = async (e) => {
+    document.getElementById('chat-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const input = document.getElementById('message');
-      const msg = input.value;
-      input.value = '';
+      const msg = document.getElementById('message').value;
+      const resBox = document.getElementById('response');
+      resBox.textContent = "⏳ Inatuma...";
 
-      chat.innerHTML += `<div class="bubble user">${msg}</div>`;
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg })
+        });
 
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg })
-      });
-
-      const data = await res.json();
-      chat.innerHTML += `<div class="bubble bot">${data.reply}</div>`;
-    };
+        const data = await res.json();
+        resBox.textContent = "🤖 Bot: " + (data.labels ? data.labels[0] : JSON.stringify(data));
+      } catch (err) {
+        resBox.textContent = "⚠️ Error: " + err.message;
+      }
+    });
   </script>
 </body>
 </html>
