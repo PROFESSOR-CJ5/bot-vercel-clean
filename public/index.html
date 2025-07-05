@@ -1,35 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chatbot</title>
+  <meta charset="UTF-8" />
+  <title>Chatbot - ChatGPT Style</title>
 </head>
 <body>
-  <h1>Chat na Bot</h1>
+  <h1>Chatbot - ChatGPT Style</h1>
   <form id="chat-form">
-    <input type="text" id="message" placeholder="Andika ujumbe..." required />
+    <input type="text" id="userInput" placeholder="Andika ujumbe..." required autocomplete="off" />
     <button type="submit">Tuma</button>
   </form>
-  <pre id="response"></pre>
+  <p id="response"></p>
 
   <script>
-    document.getElementById('chat-form').addEventListener('submit', async (e) => {
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('userInput');
+    const responseBox = document.getElementById('response');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const msg = document.getElementById('message').value;
-      const resBox = document.getElementById('response');
-      resBox.textContent = "⏳ Inatuma...";
+      responseBox.textContent = "Inatuma... tafadhali subiri.";
+      const message = input.value;
 
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: msg })
+          body: JSON.stringify({ message })
         });
 
         const data = await res.json();
-        resBox.textContent = "🤖 Bot: " + (data.labels ? data.labels[0] : JSON.stringify(data));
+
+        if (data.error) {
+          responseBox.textContent = `Hitilafu: ${data.error}`;
+        } else {
+          responseBox.textContent = "🤖 Bot: " + data.reply;
+        }
       } catch (err) {
-        resBox.textContent = "⚠️ Error: " + err.message;
+        responseBox.textContent = "Hitilafu ya mtandao: " + err.message;
       }
     });
   </script>
